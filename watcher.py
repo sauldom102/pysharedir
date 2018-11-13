@@ -36,13 +36,13 @@ if __name__ == "__main__":
 			
 			if added_dirs[1]:
 				print(added_dirs)
-				s.send(json.dumps(added_dirs).encode(), 1024)
+				s.send(json.dumps(added_dirs).encode())
 			if removed_dirs[1]:
 				print(removed_dirs)
-				s.send(json.dumps(removed_dirs).encode(), 1024)
+				s.send(json.dumps(removed_dirs).encode())
 			if added_files[1]:
 				print(added_files)
-				s.send(json.dumps(added_files).encode(), 1024)
+				s.send(json.dumps(added_files).encode())
 				for filename in added_files[1]:
 					with open(os.path.join(path_to_watch, filename), 'rb') as f:
 						s.sendfile(f)
