@@ -2,6 +2,7 @@ import os
 import time
 import socket
 import json
+from io import BufferedReader
 
 def get_files_and_dirs(path):
 	_dirs_list = []
@@ -17,7 +18,7 @@ def get_files_and_dirs(path):
 
 if __name__ == "__main__":
 	with socket.socket() as s:
-		s.connect(('10.10.1.6', 9000))
+		s.connect(('127.0.0.1', 9000))
 
 		path_to_watch = "/home/saul/Desktop"
 		
@@ -42,11 +43,13 @@ if __name__ == "__main__":
 				s.send(json.dumps(removed_dirs).encode())
 			if added_files[1]:
 				print(added_files)
-				s.send(json.dumps(added_files).encode())
+				# s.send(json.dumps(added_files).encode())
 				for filename in added_files[1]:
+					print(filename)
+					s.send('NEW_FILE {}'.format(filename).encode())
 					with open(os.path.join(path_to_watch, filename), 'rb') as f:
 						s.sendfile(f)
-						pass
+					s.send('END_OF_FILE')
 			if removed_files[1]:
 				print(removed_files)
 				s.send(json.dumps(removed_files).encode(), 1024)
