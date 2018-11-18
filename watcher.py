@@ -46,10 +46,13 @@ if __name__ == "__main__":
 				# s.send(json.dumps(added_files).encode())
 				for filename in added_files[1]:
 					print(filename)
-					s.send('NEW_FILE {}'.format(filename).encode())
 					with open(os.path.join(path_to_watch, filename), 'rb') as f:
+						bytesize = os.path.getsize(f.name)
+
+						msg = 'NEW_FILE {} ||| {}'.format(filename, bytesize)
+						s.send(msg.encode() + (' '*(1024 - len(msg))).encode())
 						s.sendfile(f)
-					s.send('END_OF_FILE')
+						s.send((' '*(bytesize % 1024)).encode())
 			if removed_files[1]:
 				print(removed_files)
 				s.send(json.dumps(removed_files).encode(), 1024)
