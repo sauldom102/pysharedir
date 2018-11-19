@@ -23,7 +23,7 @@ while True:
 	try:
 		if not writing_file:
 			data_str = datos_recibidos.decode('utf-8', 'replace')
-			
+
 			if data_str.startswith('NEW_FILE'):
 				print(data_str)
 				filename = data_str[data_str.index(' ') + 1:data_str.index('|||') - 1]
@@ -54,7 +54,8 @@ while True:
 				f.write(datos_recibidos)
 			
 			if byte_counter < byte_size:
-				print('writing file {}... ({}MB / {}MB)'.format(writing_file, round(byte_counter / 1e6, 2), round(byte_size / 1e6, 2)))
+				# print deleted to improve efficiency (from 15MB/s to 53MB/s)
+				# print('writing file {}... ({}MB / {}MB)'.format(writing_file, round(byte_counter / 1e6, 2), round(byte_size / 1e6, 2)))
 				pass
 			else:
 				print('Finished file {}'.format(writing_file))
