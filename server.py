@@ -22,10 +22,9 @@ while True:
 
 	try:
 		if not writing_file:
-			data_str = datos_recibidos.decode('utf-8', 'replace')
+			data_str = datos_recibidos.decode()
 
 			if data_str.startswith('NEW_FILE'):
-				print(data_str)
 				filename = data_str[data_str.index(' ') + 1:data_str.index('|||') - 1]
 				byte_size = int(data_str[data_str.index('|||') + 4:])
 				writing_file = filename
@@ -50,7 +49,8 @@ while True:
 								os.remove(rel_file)
 		else:
 			with open(os.path.join(ruta, writing_file), 'ab') as f:
-				byte_counter += len(datos_recibidos)
+				# byte_counter += len(datos_recibidos)
+				byte_counter += 1024
 				f.write(datos_recibidos)
 			
 			if byte_counter < byte_size:

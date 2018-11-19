@@ -33,19 +33,20 @@ def get_files_and_dirs(path):
 			if rel_dir not in _fileignore:
 				_dirs_list.append(rel_dir)
 		for f in files:
-			file_rel_path = os.path.join(root, f)[len(path) + 1:]
-			filedir = os.path.split(file_rel_path)[0]
-			file_ext = os.path.splitext(file_rel_path)[1][1:]
-			
-			if len(_fileallow) > 0:
-				if (file_ext in list(_get_file_extensions(_fileallow))) or (file_rel_path in _fileallow):
-					_files_list.append(file_rel_path)
+			if f not in ('.fileallow', '.fileignore'):
+				file_rel_path = os.path.join(root, f)[len(path) + 1:]
+				filedir = os.path.split(file_rel_path)[0]
+				file_ext = os.path.splitext(file_rel_path)[1][1:]
+				
+				if len(_fileallow) > 0:
+					if (file_ext in list(_get_file_extensions(_fileallow))) or (file_rel_path in _fileallow):
+						_files_list.append(file_rel_path)
 
-			elif len(_fileignore) > 0:
-				if (file_rel_path not in _fileignore) and (filedir not in _fileignore) and (file_ext not in list(_get_file_extensions(_fileignore))):
+				elif len(_fileignore) > 0:
+					if (file_rel_path not in _fileignore) and (filedir not in _fileignore) and (file_ext not in list(_get_file_extensions(_fileignore))):
+						_files_list.append(file_rel_path)
+				else:
 					_files_list.append(file_rel_path)
-			else:
-				_files_list.append(file_rel_path)
 
 	return (_files_list, _dirs_list)
 
@@ -59,9 +60,10 @@ if __name__ == "__main__":
 
 		s.connect((server_ip, 9000))
 
-		path_to_watch = "/home/saul/Desktop"
+		path_to_watch = input('Enter the path you want to watch: ')
 		
 		before_files, before_dirs = get_files_and_dirs(path_to_watch)
+		# before_files, before_dirs = [], []
 			
 		while True:
 			time.sleep (5)
@@ -92,9 +94,20 @@ if __name__ == "__main__":
 						print('Sending {} with a size of {}MB'.format(filename, mbsize))
 
 						msg = 'NEW_FILE {} ||| {}'.format(filename, bytesize)
-						s.send(msg.encode() + (' '*(1024 - len(msg))).encode())
-						s.sendfile(f)
-						s.send((' '*(bytesize % 1024)).encode())
+						msg += ' '*(1024 - len(msg))
+						s.send(msg.encode())
+						content = f.read(1024)
+						s.send(content)
+						while True:
+							content = f.read(1024)
+							len_content = len(content)
+
+							if len_content == 0:
+								break
+
+							if len_content != 1024:
+								content += b' '*(1024 - len_content)
+							s.send(content)
 
 						f_time = time.time() - s_time
 						print('File {} sent successfully in {} seconds ({}MB/s)'.format(filename, f_time, round(mbsize/f_time, 2)))
