@@ -18,14 +18,14 @@ def get_files_and_dirs(path):
 
 if __name__ == "__main__":
 	with socket.socket() as s:
-		s.connect(('127.0.0.1', 9000))
+		s.connect(('10.10.1.6', 9000))
 
 		path_to_watch = "/home/saul/Desktop"
 		
 		before_files, before_dirs = get_files_and_dirs(path_to_watch)
 			
 		while True:
-			time.sleep (5)
+			time.sleep (7)
 
 			after_files, after_dirs = get_files_and_dirs(path_to_watch)
 

@@ -41,6 +41,10 @@ while True:
 				elif data_json[0] == "remove_dir":
 					for d in data_json[1]:
 						shutil.rmtree(os.path.join(ruta, d))
+				elif data_json[0] == "remove_file":
+					for f in data_json[1]:
+						os.remove(os.path.join(ruta, f))
+						
 	except (json.decoder.JSONDecodeError, UnicodeDecodeError) as e:
 		if writing_file:
 		
