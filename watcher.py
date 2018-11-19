@@ -37,13 +37,15 @@ def get_files_and_dirs(path):
 			filedir = os.path.split(file_rel_path)[0]
 			file_ext = os.path.splitext(file_rel_path)[1][1:]
 			
-			if _fileallow is not None and len(_fileallow) > 0:
+			if len(_fileallow) > 0:
 				if (file_ext in list(_get_file_extensions(_fileallow))) or (file_rel_path in _fileallow):
 					_files_list.append(file_rel_path)
 
-			elif _fileignore is not None and len(_fileignore) > 0:
+			elif len(_fileignore) > 0:
 				if (file_rel_path not in _fileignore) and (filedir not in _fileignore) and (file_ext not in list(_get_file_extensions(_fileignore))):
 					_files_list.append(file_rel_path)
+			else:
+				_files_list.append(file_rel_path)
 
 	return (_files_list, _dirs_list)
 
@@ -82,16 +84,20 @@ if __name__ == "__main__":
 				print(added_files)
 				# s.send(json.dumps(added_files).encode())
 				for filename in added_files[1]:
-					print(filename)
 					file_path = os.path.join(path_to_watch, filename)
 					with open(file_path, 'rb') as f:
 						bytesize = os.path.getsize(f.name)
+						mbsize = bytesize / 1e6
+						s_time = time.time()
+						print('Sending {} with a size of {}MB'.format(filename, mbsize))
 
 						msg = 'NEW_FILE {} ||| {}'.format(filename, bytesize)
 						s.send(msg.encode() + (' '*(1024 - len(msg))).encode())
 						s.sendfile(f)
 						s.send((' '*(bytesize % 1024)).encode())
 
+						f_time = time.time() - s_time
+						print('File {} sent successfully in {} seconds ({}MB/s)'.format(filename, f_time, round(mbsize/f_time, 2)))
 						remove_contents(file_path)
 			if removed_files[1]:
 				print(removed_files)

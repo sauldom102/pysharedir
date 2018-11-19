@@ -2,7 +2,6 @@ import socket
 import json
 import os
 import shutil
-import time
 
 servidor = socket.socket()
 servidor.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
