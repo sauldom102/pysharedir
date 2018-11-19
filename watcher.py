@@ -2,17 +2,29 @@ import os
 import time
 import socket
 import json
-from io import BufferedReader
+
+def _get_file_lines(file_path):
+	if os.path.isfile(file_path):
+		with open(file_path, 'r') as f:
+			return f.read().splitlines()
+	
+	return None
+
+def _get_ignore_extensions(fileignore_content):
+	for fi in fileignore_content:
+		splitted = fi.split('.')
+		if len(splitted) >= 2 and splitted[0] == '*':
+			yield '.'.join(splitted[1:])
 
 def get_files_and_dirs(path):
 	_dirs_list = []
 	_files_list = []
 	
-	if os.path.isfile('.fileignore'):
-		with open('.fileignore', 'r') as f:
-			_fileignore = f.read().splitlines()
-	else:
-		_fileignore = []
+	fileallow_path = os.path.join(path, '.fileallow')
+	fileignore_path = os.path.join(path, '.fileignore')
+
+	_fileallow = _get_file_lines(fileallow_path)
+	_fileignore = _get_file_lines(fileignore_path)
 
 	for root, dirs, files in os.walk(path, topdown=False):
 		for _dir in dirs:
@@ -23,8 +35,9 @@ def get_files_and_dirs(path):
 		for f in files:
 			file_rel_path = os.path.join(root, f)[len(path) + 1:]
 			filedir = os.path.split(file_rel_path)[0]
+			file_ext = os.path.splitext(file_rel_path)[1][1:]
 
-			if (file_rel_path not in _fileignore) and (filedir not in _fileignore):
+			if (file_rel_path not in _fileignore) and (filedir not in _fileignore) and (file_ext not in list(_get_ignore_extensions(_fileignore))):
 				_files_list.append(file_rel_path)
 
 	return (_files_list, _dirs_list)

@@ -40,7 +40,9 @@ while True:
 						os.makedirs(os.path.join(ruta, d))
 				elif data_json[0] == "remove_dir":
 					for d in data_json[1]:
-						shutil.rmtree(os.path.join(ruta, d))
+						rel_dir = os.path.join(ruta, d)
+						if os.path.isdir(rel_dir):
+							shutil.rmtree(rel_dir)
 				elif data_json[0] == "remove_file":
 					for f in data_json[1]:
 						rel_file = os.path.join(ruta, f)
@@ -49,13 +51,12 @@ while True:
 
 	except (json.decoder.JSONDecodeError, UnicodeDecodeError) as e:
 		if writing_file:
-			
 			with open(os.path.join(ruta, writing_file), 'ab') as f:
 				byte_counter += len(datos_recibidos)
 				f.write(datos_recibidos)
 			
 			if byte_counter < byte_size:
-				print('writing file {}... ({}MB / {}MB)'.format(writing_file, byte_counter / 1024, byte_size / 1024))
+				print('writing file {}... ({}MB / {}MB)'.format(writing_file, round(byte_counter / 1e6, 2), round(byte_size / 1e6, 2)))
 				pass
 			else:
 				print('Finished file {}'.format(writing_file))
