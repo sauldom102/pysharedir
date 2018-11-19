@@ -43,11 +43,13 @@ while True:
 						shutil.rmtree(os.path.join(ruta, d))
 				elif data_json[0] == "remove_file":
 					for f in data_json[1]:
-						os.remove(os.path.join(ruta, f))
+						rel_file = os.path.join(ruta, f)
+						if os.path.isfile(rel_file):
+							os.remove(rel_file)
 
 	except (json.decoder.JSONDecodeError, UnicodeDecodeError) as e:
 		if writing_file:
-		
+			
 			with open(os.path.join(ruta, writing_file), 'ab') as f:
 				byte_counter += len(datos_recibidos)
 				f.write(datos_recibidos)

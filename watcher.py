@@ -7,12 +7,25 @@ from io import BufferedReader
 def get_files_and_dirs(path):
 	_dirs_list = []
 	_files_list = []
+	
+	if os.path.isfile('.fileignore'):
+		with open('.fileignore', 'r') as f:
+			_fileignore = f.read().splitlines()
+	else:
+		_fileignore = []
 
 	for root, dirs, files in os.walk(path, topdown=False):
 		for _dir in dirs:
-			_dirs_list.append(os.path.join(root, _dir)[len(path) + 1:])
+			rel_dir = os.path.join(root, _dir)[len(path) + 1:]
+
+			if rel_dir not in _fileignore:
+				_dirs_list.append(rel_dir)
 		for f in files:
-			_files_list.append(os.path.join(root, f)[len(path) + 1:])
+			file_rel_path = os.path.join(root, f)[len(path) + 1:]
+			filedir = os.path.split(file_rel_path)[0]
+
+			if (file_rel_path not in _fileignore) and (filedir not in _fileignore):
+				_files_list.append(file_rel_path)
 
 	return (_files_list, _dirs_list)
 
@@ -31,7 +44,7 @@ if __name__ == "__main__":
 		before_files, before_dirs = get_files_and_dirs(path_to_watch)
 			
 		while True:
-			time.sleep (7)
+			time.sleep (5)
 
 			after_files, after_dirs = get_files_and_dirs(path_to_watch)
 
@@ -64,7 +77,7 @@ if __name__ == "__main__":
 						remove_contents(file_path)
 			if removed_files[1]:
 				print(removed_files)
-				s.send(json.dumps(removed_files).encode(), 1024)
+				s.send(json.dumps(removed_files).encode())
 			
 			before_dirs = after_dirs
 			before_files = after_files
