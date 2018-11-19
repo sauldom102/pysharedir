@@ -8,11 +8,11 @@ def _get_file_lines(file_path):
 		with open(file_path, 'r') as f:
 			return f.read().splitlines()
 	
-	return None
+	return []
 
-def _get_ignore_extensions(fileignore_content):
-	for fi in fileignore_content:
-		splitted = fi.split('.')
+def _get_file_extensions(file_content):
+	for f in file_content:
+		splitted = f.split('.')
 		if len(splitted) >= 2 and splitted[0] == '*':
 			yield '.'.join(splitted[1:])
 
@@ -36,9 +36,14 @@ def get_files_and_dirs(path):
 			file_rel_path = os.path.join(root, f)[len(path) + 1:]
 			filedir = os.path.split(file_rel_path)[0]
 			file_ext = os.path.splitext(file_rel_path)[1][1:]
+			
+			if _fileallow is not None and len(_fileallow) > 0:
+				if (file_ext in list(_get_file_extensions(_fileallow))) or (file_rel_path in _fileallow):
+					_files_list.append(file_rel_path)
 
-			if (file_rel_path not in _fileignore) and (filedir not in _fileignore) and (file_ext not in list(_get_ignore_extensions(_fileignore))):
-				_files_list.append(file_rel_path)
+			elif _fileignore is not None and len(_fileignore) > 0:
+				if (file_rel_path not in _fileignore) and (filedir not in _fileignore) and (file_ext not in list(_get_file_extensions(_fileignore))):
+					_files_list.append(file_rel_path)
 
 	return (_files_list, _dirs_list)
 
