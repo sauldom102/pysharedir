@@ -13,7 +13,7 @@ servidor.listen(1)
 socket_cliente, datos_cliente = servidor.accept()
 print("Cliente {} conectado".format(datos_cliente))
 
-ruta = "/home/saul/example"
+ruta = input('Enter the directory where you want to receive the files: ')
 
 writing_file = False
 byte_counter = 0
@@ -44,7 +44,7 @@ while True:
 				elif data_json[0] == "remove_file":
 					for f in data_json[1]:
 						os.remove(os.path.join(ruta, f))
-						
+
 	except (json.decoder.JSONDecodeError, UnicodeDecodeError) as e:
 		if writing_file:
 		
@@ -53,7 +53,7 @@ while True:
 				f.write(datos_recibidos)
 			
 			if byte_counter < byte_size:
-				print('writing file {}... ({} / {})'.format(writing_file, byte_counter, byte_size))
+				print('writing file {}... ({}MB / {}MB)'.format(writing_file, byte_counter / 1024, byte_size / 1024))
 				pass
 			else:
 				print('Finished file {}'.format(writing_file))

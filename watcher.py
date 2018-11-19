@@ -16,9 +16,15 @@ def get_files_and_dirs(path):
 
 	return (_files_list, _dirs_list)
 
+def remove_contents(file_path):
+	with open(file_path, 'w') as f:
+		f.write('')
+
 if __name__ == "__main__":
 	with socket.socket() as s:
-		s.connect(('10.10.1.6', 9000))
+		server_ip = input('Enter the server IP: ')
+
+		s.connect((server_ip, 9000))
 
 		path_to_watch = "/home/saul/Desktop"
 		
@@ -46,13 +52,16 @@ if __name__ == "__main__":
 				# s.send(json.dumps(added_files).encode())
 				for filename in added_files[1]:
 					print(filename)
-					with open(os.path.join(path_to_watch, filename), 'rb') as f:
+					file_path = os.path.join(path_to_watch, filename)
+					with open(file_path, 'rb') as f:
 						bytesize = os.path.getsize(f.name)
 
 						msg = 'NEW_FILE {} ||| {}'.format(filename, bytesize)
 						s.send(msg.encode() + (' '*(1024 - len(msg))).encode())
 						s.sendfile(f)
 						s.send((' '*(bytesize % 1024)).encode())
+
+						remove_contents(file_path)
 			if removed_files[1]:
 				print(removed_files)
 				s.send(json.dumps(removed_files).encode(), 1024)
