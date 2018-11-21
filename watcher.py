@@ -102,9 +102,9 @@ if __name__ == "__main__":
 						s_time = time.time()
 						print('Sending {} with a size of {}MB'.format(filename, mbsize))
 
-						msg = 'NEW_FILE {} ||| {}'.format(filename, bytesize).encode()
-						# msg += ' '*(CHUNK_SIZE - len(msg))
-						s.send(get_with_bytes_at_end(msg, CHUNK_SIZE))
+						msg = 'NEW_FILE {} ||| {}'.format(filename, bytesize)
+						msg += ' '*(CHUNK_SIZE - len(msg))
+						s.send(msg.encode())
 
 						while True:
 							content = f.read(CHUNK_SIZE)
