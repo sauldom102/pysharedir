@@ -58,7 +58,7 @@ def get_with_bytes_at_end(data, chunk_size):
 	return data + (b' '*(chunk_size - len(data)))
 
 if __name__ == "__main__":
-	CHUNK_SIZE = 32768
+	CHUNK_SIZE = 1024
 
 	with socket.socket() as s:
 		server_ip = input('Enter the server IP: ')
@@ -93,7 +93,7 @@ if __name__ == "__main__":
 				print(added_files)
 				# s.send(json.dumps(added_files).encode())
 				for filename in added_files[1]:
-					time.sleep(0.4)
+					time.sleep(0.2)
 
 					file_path = os.path.join(path_to_watch, filename)
 					with open(file_path, 'rb') as f:
@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
 						remove_contents(file_path)
 					
-					time.sleep(0.5)
+					time.sleep(0.2)
 			if removed_files[1]:
 				print(removed_files)
 				data = json.dumps(removed_files).encode()

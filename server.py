@@ -4,11 +4,9 @@ import os
 import shutil
 from threading import Thread
 
-
-
 class Client(Thread):
 
-	CHUNK_SIZE = 32768
+	CHUNK_SIZE = 1024
 	writing_file = False
 	byte_counter = 0
 	byte_size = 0
@@ -55,6 +53,8 @@ class Client(Thread):
 				else:
 					with open(os.path.join(self.save_path, self.writing_file), 'ab') as f:
 						self.byte_counter += self.CHUNK_SIZE
+						if self.byte_counter == self.byte_size:
+							datos_recibidos = datos_recibidos.strip()
 						f.write(datos_recibidos)
 					
 					if not self.byte_counter < self.byte_size:
