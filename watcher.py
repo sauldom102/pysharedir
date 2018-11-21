@@ -91,7 +91,6 @@ if __name__ == "__main__":
 				s.send(get_with_bytes_at_end(data, CHUNK_SIZE))
 			if added_files[1]:
 				print(added_files)
-				# s.send(json.dumps(added_files).encode())
 				for filename in added_files[1]:
 					time.sleep(0.2)
 

@@ -7,15 +7,16 @@ from threading import Thread
 class Client(Thread):
 
 	CHUNK_SIZE = 1024
-	writing_file = False
-	byte_counter = 0
-	byte_size = 0
 
 	def __init__(self, sckt, clt_data, save_path):
 		super().__init__()
 		self.sckt = sckt
 		self.clt_data = clt_data
 		self.save_path = save_path
+
+		self.writing_file = False
+		self.byte_counter = 0
+		self.byte_size = 0
 
 		print("Cliente {} conectado".format(clt_data))
 
