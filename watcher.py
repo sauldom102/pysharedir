@@ -54,7 +54,12 @@ def remove_contents(file_path):
 	with open(file_path, 'w') as f:
 		f.write('')
 
+def get_with_bytes_at_end(data, chunk_size):
+	return data + (b' '*(chunk_size - len(data)))
+
 if __name__ == "__main__":
+	CHUNK_SIZE = 32768
+
 	with socket.socket() as s:
 		server_ip = input('Enter the server IP: ')
 
@@ -78,14 +83,18 @@ if __name__ == "__main__":
 			
 			if added_dirs[1]:
 				print(added_dirs)
-				s.send(json.dumps(added_dirs).encode())
+				data = json.dumps(added_dirs).encode()
+				s.send(get_with_bytes_at_end(data, CHUNK_SIZE))
 			if removed_dirs[1]:
 				print(removed_dirs)
-				s.send(json.dumps(removed_dirs).encode())
+				data = json.dumps(removed_dirs).encode()
+				s.send(get_with_bytes_at_end(data, CHUNK_SIZE))
 			if added_files[1]:
 				print(added_files)
 				# s.send(json.dumps(added_files).encode())
 				for filename in added_files[1]:
+					time.sleep(0.4)
+
 					file_path = os.path.join(path_to_watch, filename)
 					with open(file_path, 'rb') as f:
 						bytesize = os.path.getsize(f.name)
@@ -94,27 +103,35 @@ if __name__ == "__main__":
 						print('Sending {} with a size of {}MB'.format(filename, mbsize))
 
 						msg = 'NEW_FILE {} ||| {}'.format(filename, bytesize)
-						msg += ' '*(1024 - len(msg))
+						msg += ' '*(CHUNK_SIZE - len(msg))
 						s.send(msg.encode())
-						content = f.read(1024)
-						s.send(content)
+
 						while True:
-							content = f.read(1024)
+							content = f.read(CHUNK_SIZE)
 							len_content = len(content)
 
 							if len_content == 0:
 								break
 
-							if len_content != 1024:
-								content += b' '*(1024 - len_content)
+							if len_content != CHUNK_SIZE:
+								content += b' '*(CHUNK_SIZE - len_content)
 							s.send(content)
 
 						f_time = time.time() - s_time
-						print('File {} sent successfully in {} seconds ({}MB/s)'.format(filename, f_time, round(mbsize/f_time, 2)))
+						try:
+							transfer_time = round(mbsize/f_time, 2)
+						except ZeroDivisionError:
+							transfer_time = 0
+						
+						print('File {} sent successfully in {} seconds ({}MB/s)'.format(filename, f_time, transfer_time))
+
 						remove_contents(file_path)
+					
+					time.sleep(0.5)
 			if removed_files[1]:
 				print(removed_files)
-				s.send(json.dumps(removed_files).encode())
+				data = json.dumps(removed_files).encode()
+				s.send(get_with_bytes_at_end(data, CHUNK_SIZE))
 			
 			before_dirs = after_dirs
 			before_files = after_files

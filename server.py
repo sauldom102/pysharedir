@@ -9,6 +9,8 @@ servidor.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 servidor.bind(("", 9000))
 servidor.listen(1)
 
+CHUNK_SIZE = 32768
+
 socket_cliente, datos_cliente = servidor.accept()
 print("Cliente {} conectado".format(datos_cliente))
 
@@ -18,7 +20,7 @@ writing_file = False
 byte_counter = 0
 byte_size = 0
 while True:
-	datos_recibidos = socket_cliente.recv(1024)
+	datos_recibidos = socket_cliente.recv(CHUNK_SIZE)
 
 	try:
 		if not writing_file:
@@ -50,14 +52,10 @@ while True:
 		else:
 			with open(os.path.join(ruta, writing_file), 'ab') as f:
 				# byte_counter += len(datos_recibidos)
-				byte_counter += 1024
+				byte_counter += CHUNK_SIZE
 				f.write(datos_recibidos)
 			
-			if byte_counter < byte_size:
-				# print deleted to improve efficiency (from 15MB/s to 53MB/s)
-				# print('writing file {}... ({}MB / {}MB)'.format(writing_file, round(byte_counter / 1e6, 2), round(byte_size / 1e6, 2)))
-				pass
-			else:
+			if not byte_counter < byte_size:
 				print('Finished file {}'.format(writing_file))
 				writing_file = False
 				byte_counter = 0
